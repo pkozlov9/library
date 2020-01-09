@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<setup xmlns="http://databene.org/benerator/0.9.8"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://databene.org/benerator/0.9.8 benerator-0.9.8.xsd"
+        defaultEncoding="UTF-8"
+        defaultDataset="US"
+        defaultLocale="us"
+        defaultLineSeparator="\n">
+
+    <!-- Параметры генерации данных -->
+    <setting name="totalRowsGenerate" value="60000000"/>
+    <setting name="transactionRowsGenerate" value="100000"/>
+    <setting name="dbName" value="benerator"/>
+    <setting name="dbTable" value="lb_book1"/>
+    <setting name="dbUser" value="root"/>
+    <setting name="dbPass" value="kpa9devel"/>
+
+    <import domains="person"/>
+    <import platforms="db" />
+    <import class="org.databene.benerator.distribution.function.*,org.databene.benerator.primitive.*,org.databene.platform.db.*"/>
+    
+    <database id="db" url="jdbc:mysql://localhost:3306/benerator?characterEncoding=UTF-8" driver="com.mysql.jdbc.Driver" user="{dbUser}" password="{dbPass}" catalog="{dbName}" />
+
+    <execute target="db">
+        truncate table lb_book1;
+    </execute>
+
+    <bean id="dtGen" class="DateTimeGenerator">
+        <property name='minDate'          value='1950-01-01'/>
+        <property name='maxDate'          value='1995-01-01'/>
+        <property name='dateGranularity'  value='00-00-01'  />
+        <property name='dateDistribution' value='random'    />
+    </bean>
+
+    <bean id="crGen" class="DateTimeGenerator">
+        <property name='minDate'          value='1916-01-01'/>
+        <property name='maxDate'          value='2015-08-02'/>
+        <property name='dateGranularity'  value='00-00-01'  />
+        <property name='dateDistribution' value='random'    />
+        <property name='minTime'          value='00:00:00'  />
+        <property name='maxTime'          value='23:59:59'  />
+        <property name='timeGranularity'  value='00:00:01'  />
+        <property name='timeDistribution' value='random'    />
+    </bean>
+
+    <generate type="{dbTable}" count="totalRowsGenerate" consumer="db" pageSize="transactionRowsGenerate">
+        <attribute name="bk_id" script="null"/>
+        <attribute name="bk_cg_id" min="1" max="33"/>
+        <attribute name="bk_title" type='string' generator="new SeedSentenceGenerator('books.txt')" maxLength="255"/>
+        <attribute name="bkdate" generator="dtGen"/>
+        <attribute name="bk_created_at" generator="crGen"/>
+
+    </generate>
+
+    <!--<execute target="db">
+        call lb_data_copy();
+    </execute>-->
+</setup>
